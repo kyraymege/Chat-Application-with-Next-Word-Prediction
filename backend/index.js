@@ -82,4 +82,9 @@ io.on("connection", (socket) => {
     socket.on('stop typing', (room) => {
         socket.in(room).emit('stop typing', room);
     })
+
+    socket.off('setup', (userData) => {
+        socket.leave(userData._id);
+        console.log("left room", userData._id);
+    })
 })
