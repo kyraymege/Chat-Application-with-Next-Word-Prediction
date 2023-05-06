@@ -3,7 +3,6 @@ import ChatMessageContainer from '../ChatMessageContainer'
 import ChatMessageUser from '../ChatMessageHeader'
 import { useSelector } from 'react-redux'
 import { fetchChatMessages, sendMessageToChat } from '@/redux/ApiCalls'
-import { useDispatch } from 'react-redux'
 import { io } from "socket.io-client";
 import { BsFillSendFill, BsCardImage } from 'react-icons/bs'
 import { MdEmojiEmotions } from 'react-icons/md'
@@ -13,7 +12,9 @@ const ChatRightBar = () => {
   const { activeContact } = useSelector((state) => state.activeContact);
   const [messages, setMessages] = useState([]);
   const [content, setContent] = useState("");
-  const [socketConnected, setSocketConnected] = useState(false)
+  const [isSocketConnected, setIsSocketConnected] = useState(false)
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const socket = useRef();
   const chatRef = useRef();
   var activeContactCompare;
@@ -21,10 +22,16 @@ const ChatRightBar = () => {
   useEffect(() => {
     socket.current = io("http://localhost:8800");
     socket.current.emit("setup", currentUser)
-    socket.current.on('connection', () => {
-      setSocketConnected(true)
+    socket.current.on('connected', () => {
+      setIsSocketConnected(true)
     }
     )
+    socket.current.on('typing', () => {
+      setIsTyping(true)
+    })
+    socket.current.on('stop typing', () => {
+      setIsTyping(false)
+    })
 
   }, [])
 
@@ -46,41 +53,41 @@ const ChatRightBar = () => {
 
   useEffect(() => {
     socket.current.on('message recieved', (newMessageRecieved) => {
-      // if (!activeContactCompare || activeContactCompare._id !== newMessageRecieved._id) {
-      //   //notification
-      // } else {
       setMessages([...messages, newMessageRecieved]);
       chatRef.current.lastElementChild.scrollIntoView();
-      // }
     })
   })
 
+  const handleTyping = () => {
+    if (!isSocketConnected) return;
 
+    if (!typing) {
+      setTyping(true);
+      socket.current.emit('typing', activeContact._id)
+      setTimeout(() => {
+        socket.current.emit('stop typing', activeContact._id)
+        setTyping(false);
+      }, 5000)
+    }
+  }
 
   const sendMessage = async () => {
-
     try {
       sendMessageToChat(content, currentUser._id, activeContact._id).then((res) => {
         // console.log(res)
         socket.current.emit("new message", res);
         setMessages([...messages, res]);
       })
-
-
     } catch (error) {
       console.log(error);
     }
-
   };
-
-
-
 
   return (
     <div className='w-full '>
       {activeContact != null ?
         <div className='w-full'>
-          <ChatMessageUser activeContact={activeContact} />
+          <ChatMessageUser isTyping={isTyping} activeContact={activeContact} />
           <ChatMessageContainer chatRef={chatRef} chatMessages={messages} />
           <div>
             <div className='flex items-center justify-center w-full h-full px-10 py-3 gap-x-6 bg-third'>
@@ -99,7 +106,7 @@ const ChatRightBar = () => {
                   className=" text-sm leading-none text-gray-200 bg-secondary  rounded  w-full px-4 py-3 outline-none"
                   type="text"
                   value={content}
-                  onChange={(e) => setContent(e.target.value)}
+                  onChange={(e) => { setContent(e.target.value); handleTyping() }}
                   placeholder="Type something..."
                 />
               </div>
