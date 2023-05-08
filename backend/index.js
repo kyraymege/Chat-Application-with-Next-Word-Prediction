@@ -72,7 +72,7 @@ io.on("connection", (socket) => {
     socket.on('new message', (newMessageRecieved) => {
         var chat = newMessageRecieved.chat;
         socket.to(chat._id).emit('message recieved', newMessageRecieved);
-        
+
     })
 
     socket.on('typing', (room) => {
