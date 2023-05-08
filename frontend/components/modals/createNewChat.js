@@ -59,9 +59,9 @@ const CreateNewChat = ({ setShow, setChats, chats }) => {
                                 value={search}
                             />
                         </div>
-                        {isSearch && chatsUsers.length !== 0 &&
+                        {isSearch && chatsUsers?.length !== 0 &&
                             <div className="h-[600px] overflow-y-auto scrollbar">
-                                {chatsUsers.map((chat, i) => (
+                                {chatsUsers?.map((chat, i) => (
 
                                     <div onClick={() => { onAccessChat(currentUser?._id, chat?._id) }} key={i} className='flex items-center w-full px-4 gap-x-6 py-2 hover:bg-third cursor-pointer rounded-xl '>
 
@@ -80,7 +80,7 @@ const CreateNewChat = ({ setShow, setChats, chats }) => {
                                 <p className="text-yellow-300 text-lg font-medium">Search someone for chat</p>
                             </div>
                         }
-                        {chatsUsers.length <= 0 && isSearch &&
+                        {chatsUsers?.length <= 0 && isSearch &&
                             <div className="flex items-start justify-center">
                                 <p className="text-red-300 text-lg font-medium">No user found</p>
                             </div>}

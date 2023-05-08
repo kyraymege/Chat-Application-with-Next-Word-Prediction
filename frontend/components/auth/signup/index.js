@@ -39,12 +39,20 @@ const SignUpComponent = () => {
                         username,
                         email,
                         password,
-                        profilePicture: username + "." + file.type.slice(6)
+                        profilePicture: username + "_" + file.name
                     }
                     register(user, router)
-                    const formData = new FormData();
-                    formData.append("file", file);
-                    uploadImage(formData, username + "." + file.type.slice(6));
+                    const data = new FormData();
+                    const filename = username + "_" + file.name;
+                    data.append("name", filename);
+                    data.append("file", file);
+                    try {
+                        uploadImage(data);
+
+                    } catch (error) {
+                        console.log(error);
+                        toast.error(error);
+                    }
                 } else {
                     const user = {
                         displayName: name,
@@ -75,7 +83,7 @@ const SignUpComponent = () => {
                         {file ?
                             <img onClick={handleClick} src={window.URL.createObjectURL(file)} alt="avatar" className="w-44 h-44 rounded-full group-hover:blur-sm transition-all" />
                             :
-                            <img onClick={handleClick} src="/user.png" alt="avatar" className="w-44 h-44 rounded-full group-hover:blur-sm transition-all" />}
+                            <img onClick={handleClick} src="/defaultUserImage.png" alt="avatar" className="w-44 h-44 rounded-full group-hover:blur-sm transition-all" />}
 
                         <AiOutlinePlus onClick={handleClick} className="group-hover:absolute w-8 h-8 mb-8 text-third hidden group-hover:block transition-all" />
                         <p onClick={handleClick} className='group-hover:absolute hidden group-hover:block transition-all mt-16 w-20 text-center text-gray-950 font-medium'>CHANGE PROFILE PHOTO</p>
