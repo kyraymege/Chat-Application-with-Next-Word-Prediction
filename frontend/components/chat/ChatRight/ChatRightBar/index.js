@@ -3,36 +3,28 @@ import ChatMessageContainer from '../ChatMessageContainer'
 import ChatMessageUser from '../ChatMessageHeader'
 import { useSelector } from 'react-redux'
 import { fetchChatMessages, sendMessageToChat } from '@/redux/ApiCalls'
-import { io } from "socket.io-client";
 import { BsFillSendFill, BsCardImage } from 'react-icons/bs'
 import { MdEmojiEmotions } from 'react-icons/md'
 
-const ChatRightBar = () => {
+const ChatRightBar = ({ socket, isSocketConnected }) => {
   const { currentUser } = useSelector((state) => state.auth);
   const { activeContact } = useSelector((state) => state.activeContact);
   const [messages, setMessages] = useState([]);
   const [content, setContent] = useState("");
-  const [isSocketConnected, setIsSocketConnected] = useState(false)
   const [typing, setTyping] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const socket = useRef();
+
   const chatRef = useRef();
-  var activeContactCompare;
 
   useEffect(() => {
-    socket.current = io("http://localhost:8800");
-    socket.current.emit("setup", currentUser)
-    socket.current.on('connected', () => {
-      setIsSocketConnected(true)
+    if (isSocketConnected) {
+      socket?.current?.on('typing', () => {
+        setIsTyping(true)
+      })
+      socket?.current?.on('stop typing', () => {
+        setIsTyping(false)
+      })
     }
-    )
-    socket.current.on('typing', () => {
-      setIsTyping(true)
-    })
-    socket.current.on('stop typing', () => {
-      setIsTyping(false)
-    })
-
   }, [])
 
 
@@ -41,18 +33,18 @@ const ChatRightBar = () => {
 
       fetchChatMessages(activeContact._id).then((res) => {
         setMessages(res);
-        socket.current.emit('join chat', activeContact._id)
+
+        socket?.current?.emit('join chat', activeContact._id)
         chatRef.current.lastElementChild.scrollIntoView();
+
       })
 
     }
-
-    activeContactCompare = activeContact;
   }, [activeContact])
 
 
   useEffect(() => {
-    socket.current.on('message recieved', (newMessageRecieved) => {
+    socket?.current?.on('message recieved', (newMessageRecieved) => {
       setMessages([...messages, newMessageRecieved]);
       chatRef.current.lastElementChild.scrollIntoView();
     })
@@ -75,7 +67,7 @@ const ChatRightBar = () => {
     try {
       sendMessageToChat(content, currentUser._id, activeContact._id).then((res) => {
         // console.log(res)
-        socket.current.emit("new message", res);
+        socket?.current?.emit("new message", res);
         setMessages([...messages, res]);
       })
     } catch (error) {
@@ -101,7 +93,8 @@ const ChatRightBar = () => {
 
 
               </div>
-              <div className='w-full flex'>
+              <form className='flex w-full gap-x-6' onSubmit={(e) => { e.preventDefault(); sendMessage(content); setContent("") }}>
+
                 <input
                   className=" text-sm leading-none text-gray-200 bg-secondary  rounded  w-full px-4 py-3 outline-none"
                   type="text"
@@ -109,10 +102,10 @@ const ChatRightBar = () => {
                   onChange={(e) => { setContent(e.target.value); handleTyping() }}
                   placeholder="Type something..."
                 />
-              </div>
-              <div className='flex items-center justify-center'>
+
+
                 {content ?
-                  <button onClick={() => { sendMessage(content); setContent("") }} className='cursor-pointer bg-secondary hover:bg-fourth rounded-full p-3'>
+                  <button type='submit' className='cursor-pointer bg-secondary hover:bg-fourth rounded-full p-3'>
                     <BsFillSendFill className='w-6 h-6 fill-yellow-400 rotate-45 hover:scale-125' />
                   </button>
                   :
@@ -121,8 +114,7 @@ const ChatRightBar = () => {
                   </button>
                 }
 
-
-              </div>
+              </form>
 
             </div>
           </div>

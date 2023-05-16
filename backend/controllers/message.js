@@ -1,6 +1,8 @@
 const Message = require('../models/message');
 const User = require('../models/user');
 const Chat = require('../models/chat');
+const { spawn } = require('child_process');
+
 
 const allMessages = async (req, res, next) => {
     const { chatId } = req.params;
@@ -46,7 +48,41 @@ const sendMessage = async (req, res, next) => {
         res.status(400);
         console.log(error);
     }
-
 }
 
-module.exports = { allMessages, sendMessage }
+const fetchUsersMessages = async (req, res, next) => {
+    const { userId } = req.params;
+    console.log(userId)
+    try {
+        const allMessages = [];
+        const messages = await Message.find({ sender: userId }).sort({ createdAt: -1 }).limit(100);
+        messages.forEach(element => {
+            allMessages.push(element.content);
+        });
+        res.status(200).json(allMessages);
+    } catch (error) {
+        res.status(500).json(error);
+        console.log(error);
+    }
+}
+
+const guessWord = async (req, res, next) => {
+    const { userId } = req.params;
+    const { word } = req.body;
+    var dataToSend;
+    // spawn new child process to call the python script
+    const python = spawn('python', ['guess_word.py', userId, word]);
+    // collect data from script
+    python.stdout.on('data', function (data) {
+        console.log(data.toString())
+        dataToSend = data.toString();
+    });
+    // in close event we are sure that stream from child process is closed
+    python.on('close', (code) => {
+        console.log(`child process close all stdio with code ${code}`);
+        // send data to browser
+        res.status(200).send(dataToSend)
+    });
+}
+
+module.exports = { allMessages, sendMessage, fetchUsersMessages, guessWord }

@@ -5,10 +5,11 @@ import ChatSearch from '../ChatSearch'
 import { fetchChats } from '@/redux/ApiCalls'
 import { useSelector } from 'react-redux'
 
-const ChatLeftBar = () => {
+const ChatLeftBar = ({ socket, isSocketConnected }) => {
     const [chats, setChats] = useState([])
     const [query, setQuery] = useState('')
     const { currentUser } = useSelector((state) => state.auth);
+    
     useEffect(() => {
         fetchChats(currentUser?._id)
             .then((res) => {

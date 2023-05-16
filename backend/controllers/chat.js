@@ -50,14 +50,14 @@ const fetchChat = async (req, res, next) => {
         const chats = await Chat.find({ members: { $elemMatch: { $eq: req.params.userId } } })
             .populate("members", "-password")
             .populate("groupAdmin", "-password")
-            .populate("latestMessage");
+            .populate("latestMessage")
 
         const populatedChats = await User.populate(chats, {
             path: "latestMessage.sender",
-            select: "displayName profilePicture username email",
+            select: "displayName profilePicture username email",            
         });
 
-        res.status(200).json(populatedChats);
+        res.status(200).json(populatedChats.reverse());
 
     } catch (err) {
         res.status(500).json(err);
