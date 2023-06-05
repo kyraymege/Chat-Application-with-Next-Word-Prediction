@@ -2,14 +2,18 @@ from flask import Flask , request
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+from flask_cors import CORS, cross_origin
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Embedding, LSTM, Dense
 
 app = Flask(__name__)
+cors = CORS(app)
+app.config['CORS_HEADERS'] = 'Content-Type'
 
 @app.route("/guessWord", methods=['GET'])
+@cross_origin()
 def guessWord():
     args = request.args
     userId = args.get('userId') # Kullanıcı kimliğini al

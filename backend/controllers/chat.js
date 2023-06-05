@@ -1,5 +1,6 @@
 const User = require("../models/user.js");
 const Chat = require("../models/chat.js");
+const Message = require("../models/message.js");
 
 const accessChat = async (req, res, next) => {
     const { contactId, currentUserId } = req.body;
@@ -46,18 +47,67 @@ const accessChat = async (req, res, next) => {
 };
 
 const fetchChat = async (req, res, next) => {
+    const { userId } = req.params;
+
+    const customSort = (a, b) => {
+        const aDate = a.latestMessage?.updatedAt;
+        const bDate = b.latestMessage?.updatedAt;
+        if (aDate > bDate) return -1;
+        if (aDate < bDate) return 1;
+        return 0;
+    };
+
     try {
-        const chats = await Chat.find({ members: { $elemMatch: { $eq: req.params.userId } } })
+        const chats = await Chat.find({ members: { $elemMatch: { $eq: userId } } })
             .populate("members", "-password")
             .populate("groupAdmin", "-password")
             .populate("latestMessage")
+            .sort({ "createdAt": -1 });
 
         const populatedChats = await User.populate(chats, {
             path: "latestMessage.sender",
-            select: "displayName profilePicture username email",            
+            select: "displayName profilePicture username email",
         });
 
-        res.status(200).json(populatedChats.reverse());
+        await Promise.all(populatedChats.map(async (chat) => {
+            try {
+                const messages = await Message.find({ chat: chat._id, readBy: { $nin: userId } }).sort({ createdAt: -1 }).limit(100);
+                chat.chatName = messages.length;
+            } catch (error) {
+                console.log(error);
+            }
+        }));
+
+        // await populatedChats.forEach((chat) => {
+        //     var counter = 0;
+        //     Message.find({ chat: chat._id, readBy: { $nin: userId } }).sort({ createdAt: -1 }).limit(100).then((messages) => {
+        //         counter = messages.length;
+        //         console.log(messages.length)
+
+        //     });
+        //     chat.chatName = counter;
+        //     // chat.chatName = counter;
+
+        //     // Message.find({ chat: chat._id })
+        //     //     .sort({ createdAt: -1 })
+        //     //     .limit(100).then((messages) => {
+        //     //         var counter = 0;
+        //     //         messages.forEach(async (message) => {
+
+        //     //             if (!message.readBy.includes(userId)) {
+        //     //                 counter++;
+
+        //     //             }
+
+        //     //         });
+        //     //         // console.log(counter)
+        //     //         // chat.chatName = counter;
+        //     //     });
+
+
+        // });
+        res.status(200).json(populatedChats.sort(customSort));
+
 
     } catch (err) {
         res.status(500).json(err);

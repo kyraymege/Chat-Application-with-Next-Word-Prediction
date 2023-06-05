@@ -13,6 +13,11 @@ const baseRequest = axios.create({
     withCredentials: true,
 });
 
+const guessRequest = axios.create({
+    baseURL: "http://127.0.0.1:5000/",
+    withCredentials: false,
+});
+
 // Image Upload
 export const uploadImage = async (file) => {
     try {
@@ -86,9 +91,9 @@ export const fetchChats = async (userId) => {
     }
 }
 
-export const fetchChatMessages = async (chatId) => {
+export const fetchChatMessages = async (chatId,page,userId) => {
     try {
-        const res = await baseRequest.get(`/message/${chatId}`);
+        const res = await baseRequest.get("/message/"+chatId+"?page="+page+"&userId="+userId);
         return res.data;
     } catch (err) {
         toast.error(err);
@@ -116,6 +121,24 @@ export const fetchAllUsersBySearch = async (query) => {
 export const accessChat = async (currentUserId, contactId) => {
     try {
         const res = await baseRequest.post("/chat", { currentUserId, contactId });
+        return res.data;
+    } catch (err) {
+        toast.error(err);
+    }
+}
+
+export const readMessage = async (messageId, userId) => {
+    try {
+        const res = await baseRequest.put(`/message/read/${messageId}`, { userId });
+        return res.data;
+    } catch (err) {
+        toast.error(err);
+    }
+}
+
+export const guessWord = async (word, userId) => {
+    try {
+        const res = await guessRequest.get(`/guessWord?userId=${userId}&word=${word}`);
         return res.data;
     } catch (err) {
         toast.error(err);

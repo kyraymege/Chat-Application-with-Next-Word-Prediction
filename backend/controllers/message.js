@@ -6,6 +6,7 @@ const { spawn } = require('child_process');
 
 const allMessages = async (req, res, next) => {
     const { chatId } = req.params;
+    const { page, userId } = req.query;
 
     const chat = await Chat.findOne({ _id: chatId });
     if (!chat) return res.status(404).json("Chat Not Found!");
@@ -13,9 +14,24 @@ const allMessages = async (req, res, next) => {
 
     try {
         const messages = await Message.find({ chat: chatId })
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * 100)
+            .limit(100)
             .populate('sender', '-password')
-            .populate('chat');
-        res.status(200).json(messages);
+            .populate('chat')
+
+        messages.forEach(async (message) => {
+            if (!message.readBy.includes(userId)) {
+                Message.findByIdAndUpdate(message._id, { $push: { readBy: userId } }, { new: true }
+                ).then((result) => {
+                    console.log(result)
+                }).catch((err) => {
+                    console.log(err)
+                });
+            }
+        })
+
+        res.status(200).json(messages.reverse());
     } catch (error) {
         res.status(500).json(error);
         console.log(error);
@@ -32,6 +48,7 @@ const sendMessage = async (req, res, next) => {
     });
 
     try {
+        newMessage.readBy.push(userId);
         let message = await newMessage.save();
 
         message = await message.populate("sender", "displayName profilePicture");
@@ -57,12 +74,30 @@ const fetchUsersMessages = async (req, res, next) => {
         const allMessages = [];
         const messages = await Message.find({ sender: userId }).sort({ createdAt: -1 }).limit(100);
         messages.forEach(element => {
+
             allMessages.push(element.content);
         });
         res.status(200).json(allMessages);
     } catch (error) {
         res.status(500).json(error);
         console.log(error);
+    }
+}
+
+const readMessage = async (req, res, next) => {
+    const { userId } = req.body;
+    const { messageId } = req.params;
+    const message = await Message.findOne({ _id: messageId });
+    console.log
+    if (message.readBy.includes(userId)) {
+        console.log("already read")
+    } else {
+        Message.findByIdAndUpdate(messageId, { $push: { readBy: userId } }, { new: true }
+        ).then((result) => {
+            console.log(result)
+        }).catch((err) => {
+            console.log(err)
+        });
     }
 }
 
@@ -85,4 +120,4 @@ const guessWord = async (req, res, next) => {
     });
 }
 
-module.exports = { allMessages, sendMessage, fetchUsersMessages, guessWord }
+module.exports = { allMessages, sendMessage, fetchUsersMessages, guessWord, readMessage }

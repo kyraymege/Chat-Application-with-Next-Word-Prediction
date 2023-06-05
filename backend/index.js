@@ -56,24 +56,33 @@ const io = require("socket.io")(server, {
     }
 })
 
+let connectedUsers = [];
+
 io.on("connection", (socket) => {
-    console.log("connected to socket");
+    console.log("⚡ connected to socket ⚡");
     socket.on('setup', (userData) => {
+
         socket.join(userData._id);
-        console.log("joined room", userData._id);
+        console.log("⚡joined room ⚡ ", userData._id);
         socket.emit('connected');
+        !connectedUsers.some((user) => user === userData._id) &&
+            connectedUsers.push(userData._id);
+        io.emit('getConnectedUsers', connectedUsers);
     })
 
     socket.on('join chat', (room) => {
         socket.join(room);
-        
     })
 
-    
+    socket.on('read message', (room) => {
+        socket.in(room).emit('read message', room);
+    })
+
+
     socket.on('new message', (newMessageRecieved) => {
         var chat = newMessageRecieved.chat;
-        socket.to(chat._id).emit('message recieved', newMessageRecieved);
 
+        io.to(chat._id).emit("message recieved", newMessageRecieved);
     })
 
     socket.on('typing', (room) => {
@@ -86,6 +95,6 @@ io.on("connection", (socket) => {
 
     socket.off('setup', (userData) => {
         socket.leave(userData._id);
-        console.log("left room", userData._id);
+        console.log("⚡left room ⚡", userData._id);
     })
 })

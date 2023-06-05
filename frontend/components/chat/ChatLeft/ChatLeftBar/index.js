@@ -2,21 +2,12 @@ import React, { useEffect, useState } from 'react'
 import ChatUserGrid from '../ChatUserGrid'
 import ChatHeader from '../ChatHeader'
 import ChatSearch from '../ChatSearch'
-import { fetchChats } from '@/redux/ApiCalls'
 import { useSelector } from 'react-redux'
 
-const ChatLeftBar = ({ socket, isSocketConnected }) => {
-    const [chats, setChats] = useState([])
+const ChatLeftBar = ({ chats, setChats, onlineUsers }) => {
+    
     const [query, setQuery] = useState('')
     const { currentUser } = useSelector((state) => state.auth);
-    
-    useEffect(() => {
-        fetchChats(currentUser?._id)
-            .then((res) => {
-                console.log(res?.data)
-                setChats(res);
-            });
-    }, [currentUser])
 
 
     return (
@@ -28,7 +19,7 @@ const ChatLeftBar = ({ socket, isSocketConnected }) => {
                     <p className='text-xl font-normal text-gray-400'>Start a chat to texting...</p>
                 </div>
                 :
-                <ChatUserGrid query={query} chats={chats} />}
+                <ChatUserGrid onlineUsers={onlineUsers} query={query} chats={chats} />}
         </div>
     )
 }

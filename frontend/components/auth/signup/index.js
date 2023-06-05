@@ -79,7 +79,7 @@ const SignUpComponent = () => {
 
                 <div className="bg-secondary shadow rounded lg:w-1/4  md:w-1/3 w-full p-10 mt-16 ">
                     <div className="flex items-center justify-center bg-third rounded-full mx-auto w-fit p-3 my-4 cursor-pointer group">
-                        <input accept="image/*" id="dropzone-file" type="file" className="hidden" ref={hiddenFileInput} onChange={(e) => setFile(e.target.files[0])} />
+                        <input onDrag accept="image/*" id="dropzone-file" type="file" className="hidden" ref={hiddenFileInput} onChange={(e) => setFile(e.target.files[0])} />
                         {file ?
                             <img onClick={handleClick} src={window.URL.createObjectURL(file)} alt="avatar" className="w-44 h-44 rounded-full group-hover:blur-sm transition-all" />
                             :
