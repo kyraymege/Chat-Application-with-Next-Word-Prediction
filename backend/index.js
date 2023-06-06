@@ -60,13 +60,14 @@ let connectedUsers = [];
 
 io.on("connection", (socket) => {
     console.log("⚡ connected to socket ⚡");
-    socket.on('setup', (userData) => {
 
-        socket.join(userData._id);
-        console.log("⚡joined room ⚡ ", userData._id);
+    socket.on('setup', (user) => {
+
+        socket.join(user._id);
+        console.log("⚡joined room ⚡ ", user._id);
         socket.emit('connected');
-        !connectedUsers.some((user) => user === userData._id) &&
-            connectedUsers.push(userData._id);
+        !connectedUsers.some((u) => u === user._id) &&
+            connectedUsers.push(user._id);
         io.emit('getConnectedUsers', connectedUsers);
     })
 
@@ -93,8 +94,12 @@ io.on("connection", (socket) => {
         socket.in(room).emit('stop typing', room);
     })
 
-    socket.off('setup', (userData) => {
-        socket.leave(userData._id);
-        console.log("⚡left room ⚡", userData._id);
+    socket.off('setup', (user) => {
+        socket.leave(user._id);
+        connectedUsers.some((u) => u === user._id) &&
+            connectedUsers.pop(user._id);
+        console.log(connectedUsers)
+        console.log("⚡left room ⚡", user._id);
     })
+
 })

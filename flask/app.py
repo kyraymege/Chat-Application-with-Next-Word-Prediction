@@ -6,7 +6,7 @@ from flask_cors import CORS, cross_origin
 from tensorflow.keras.preprocessing.text import Tokenizer
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import Embedding, LSTM, Dense
+from tensorflow.keras.layers import Embedding, Conv1D, MaxPooling1D, Flatten, Dense
 
 app = Flask(__name__)
 cors = CORS(app)
@@ -19,70 +19,75 @@ def guessWord():
     userId = args.get('userId') # Kullanıcı kimliğini al
     input_message = args.get('word') # Giriş metnini al
 
-    # Metin verilerini oku
-    df = pd.read_json("http://localhost:8800/api/message/user/"+userId)
-    # Metin verilerini küçük harfe dönüştür
+        # Read the text data.
+    df = pd.read_json("http://localhost:8800/api/message/user/{}".format(userId))
     df = df[0].str.lower()
 
-    # Metin verilerini cümlelere ayır
+    # Split the text data into sentences.
     sentences = df.values.tolist()
 
-    # Kelimeleri sayılara dönüştürmek için bir Tokenizer oluştur
+    # Create a tokenizer to convert words to numbers.
     tokenizer = Tokenizer()
     tokenizer.fit_on_texts(sentences)
 
-    # Kelime sayısı (sözlük boyutu)
+    # Get the vocabulary size.
     vocab_size = len(tokenizer.word_index) + 1
 
-    # Cümleleri sayı dizilerine dönüştür
+    # Convert the sentences to number sequences.
     sequences = tokenizer.texts_to_sequences(sentences)
 
-    # Giriş ve çıkış dizilerini oluştur
+    # Create the input and output sequences.
     input_sequences = []
     output_sequences = []
 
     for sequence in sequences:
         for i in range(1, len(sequence)):
-            input_sequences.append(sequence[:i]) # Cümlenin ilk i kelimesi
-            output_sequences.append(sequence[i]) # Cümlenin i. kelimesi
+            input_sequences.append(sequence[:i])
+            output_sequences.append(sequence[i])
 
-    # Giriş dizilerini aynı uzunlukta olacak şekilde doldur
+    # Pad the input sequences to the same length.
     max_length = max([len(x) for x in input_sequences])
     input_sequences = pad_sequences(input_sequences, maxlen=max_length, padding="pre")
 
-    # Çıkış dizilerini one-hot kodlama yap
+    # One-hot encode the output sequences.
     output_sequences = tf.keras.utils.to_categorical(output_sequences, num_classes=vocab_size)
 
-    # Derin öğrenme modelini oluştur
+    # Create the deep learning model.
     model = Sequential([
         Embedding(vocab_size, 64, input_length=max_length),
-        LSTM(64),
+        Conv1D(filters=128, kernel_size=3, strides=1, padding="same"),
+        Flatten(),
         Dense(vocab_size, activation="softmax")
     ])
 
-    # Modeli derle ve özetini yazdır
+    # Compile the model and print its summary.
     model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
     model.summary()
 
-    # Modeli eğit
+    # Train the model.
     model.fit(input_sequences, output_sequences, epochs=10, batch_size=128, workers=4, use_multiprocessing=True)
 
-    # Yeni bir giriş dizisi için çıkış dizisini tahmin etme fonksiyonu
+
+    # Define a function to predict the next word in a new input sequence.
     def predict_next_word(input_text):
-    # Giriş metnini sayı dizisine dönüştür
+        # Convert the input text to a number sequence.
         input_sequence = tokenizer.texts_to_sequences([input_text])[0]
-    # Giriş dizisini aynı uzunlukta olacak şekilde doldur
+
+        # Pad the input sequence to the same length.
         input_sequence = pad_sequences([input_sequence], maxlen=max_length, padding="pre")
-    # Modeli kullanarak çıkış dizisini tahmin et
+
+        # Predict the output sequence using the model.
         output_sequence = model.predict(input_sequence)
-    # Tahmin edilen diziyi en yüksek olasılığa sahip kelimeye dönüştür
+
+        # Convert the predicted sequence to the word with the highest probability.
         predicted_word = tokenizer.index_word[np.argmax(output_sequence)]
-    # Tahmin edilen kelimeyi yazdır        
-        return predicted_word        
+
+        # Return the predicted word.
+        return predicted_word  
 
     # Yeni bir giriş metni için çıkış kelimesini tahmin et
     return predict_next_word(input_message) # Tahmin edilen ikinci kelime
-    
+
 
 if __name__ == "__main__":
     app.run(debug=True)

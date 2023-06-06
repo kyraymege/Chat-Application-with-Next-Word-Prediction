@@ -135,7 +135,7 @@ const ChatRightBar = ({ socket, isSocketConnected, chatRef, sendMessage, message
         :
         <div className='w-full h-[850px]'>
           <div className='flex flex-col items-center justify-center w-full h-full border-b-8 border-yellow-600'>
-            <img className='object-contain w-1/2 h-1/2' src='/landing.png' alt="chat" />
+            <img className='object-contain w-3/4 h-3/4' src='/landing1.gif' alt="chat" />
             <p className='text-2xl font-semibold text-gray-400'>Select a chat to start messaging</p>
           </div>
 

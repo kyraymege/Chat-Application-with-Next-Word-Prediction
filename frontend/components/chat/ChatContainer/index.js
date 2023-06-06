@@ -28,7 +28,7 @@ const ChatContainer = () => {
         }
         )
         socket.current.on('getConnectedUsers', (res) => {
-            // console.log(res)
+            // console.log(res)|
             setOnlineUsers(res)
         })
         dispatch(removeActiveContact())
