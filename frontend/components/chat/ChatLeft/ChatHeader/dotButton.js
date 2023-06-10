@@ -29,12 +29,6 @@ const dotButton = ({ setChats, chats }) => {
                                     <p>Create new Chat</p>
                                 </div>
                             </li>
-                            <li className="hover:bg-gray-600 p-2 rounded-l-2xl">
-                                <div className="flex items-center gap-x-6 ">
-                                    <HiUserGroup className='fill-green-400' />
-                                    <p>Create new Group</p>
-                                </div>
-                            </li>
 
                             <li onClick={() => logOut(dispatch, router)} className="hover:bg-gray-600 p-2 rounded-l-2xl">
                                 <div className="flex items-center gap-x-6 ">

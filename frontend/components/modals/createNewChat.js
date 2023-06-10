@@ -80,7 +80,7 @@ const CreateNewChat = ({ setShow, setChats, chats }) => {
                                 <p className="text-yellow-300 text-lg font-medium">Search someone for chat</p>
                             </div>
                         }
-                        {chatsUsers?.length <= 0 && isSearch &&
+                        {chatsUsers?.length <= 0 && search !== '' &&
                             <div className="flex items-start justify-center">
                                 <p className="text-red-300 text-lg font-medium">No user found</p>
                             </div>}
