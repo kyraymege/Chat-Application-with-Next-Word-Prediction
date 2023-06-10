@@ -1,7 +1,7 @@
 const Message = require('../models/message');
 const User = require('../models/user');
 const Chat = require('../models/chat');
-const { spawn } = require('child_process');
+// const { spawn } = require('child_process');
 
 
 const allMessages = async (req, res, next) => {
@@ -23,11 +23,7 @@ const allMessages = async (req, res, next) => {
         messages.forEach(async (message) => {
             if (!message.readBy.includes(userId)) {
                 Message.findByIdAndUpdate(message._id, { $push: { readBy: userId } }, { new: true }
-                ).then((result) => {
-                    console.log(result)
-                }).catch((err) => {
-                    console.log(err)
-                });
+                )
             }
         })
 
@@ -101,23 +97,23 @@ const readMessage = async (req, res, next) => {
     }
 }
 
-const guessWord = async (req, res, next) => {
-    const { userId } = req.params;
-    const { word } = req.body;
-    var dataToSend;
-    // spawn new child process to call the python script
-    const python = spawn('python', ['guess_word.py', userId, word]);
-    // collect data from script
-    python.stdout.on('data', function (data) {
-        console.log(data.toString())
-        dataToSend = data.toString();
-    });
-    // in close event we are sure that stream from child process is closed
-    python.on('close', (code) => {
-        console.log(`child process close all stdio with code ${code}`);
-        // send data to browser
-        res.status(200).send(dataToSend)
-    });
-}
+// const guessWord = async (req, res, next) => {
+//     const { userId } = req.params;
+//     const { word } = req.body;
+//     var dataToSend;
+//     // spawn new child process to call the python script
+//     const python = spawn('python', ['guess_word.py', userId, word]);
+//     // collect data from script
+//     python.stdout.on('data', function (data) {
+//         console.log(data.toString())
+//         dataToSend = data.toString();
+//     });
+//     // in close event we are sure that stream from child process is closed
+//     python.on('close', (code) => {
+//         console.log(`child process close all stdio with code ${code}`);
+//         // send data to browser
+//         res.status(200).send(dataToSend)
+//     });
+// }
 
-module.exports = { allMessages, sendMessage, fetchUsersMessages, guessWord, readMessage }
+module.exports = { allMessages, sendMessage, fetchUsersMessages, readMessage }

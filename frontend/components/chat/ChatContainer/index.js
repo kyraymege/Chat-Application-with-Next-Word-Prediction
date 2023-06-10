@@ -37,7 +37,6 @@ const ChatContainer = () => {
     useEffect(() => {
         if (activeContact != null && isSocketConnected) {
             setMessages([]);
-            console.log(activeContact)
             fetchChatMessages(activeContact._id, 1, currentUser._id).then((res) => {
                 var chat = [...chats]; // Create a new array using the spread operator
                 const elementIndex = chat.findIndex((c) => c._id === activeContact._id);

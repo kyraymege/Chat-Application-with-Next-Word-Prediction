@@ -50,6 +50,7 @@ const server = app.listen(PORT, () => {
 
 const io = require("socket.io")(server, {
     pingTimeout: 60000,
+    maxHttpBufferSize: 100000000,
     cors: {
         origin: true,
         credentials: true,
