@@ -17,9 +17,6 @@ const SignUpComponent = () => {
     const [password, setPassword] = useState("");
     const router = useRouter();
 
-    useEffect(() => {
-        console.log(file)
-    }, [file])
 
 
 

@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { BsThreeDotsVertical, BsFillPencilFill } from 'react-icons/bs'
-import { HiUserGroup } from 'react-icons/hi'
 import { BiLogOutCircle } from 'react-icons/bi'
 import { useDispatch, useSelector } from 'react-redux'
 import { logOut } from '@/redux/ApiCalls'

@@ -42,6 +42,7 @@ const login = async (req, res, next) => {
         const { password, ...others } = user._doc;
         res.cookie("access_token", token, {
             httpOnly: true,
+            domain: "localhost",
             expires: new Date(Date.now() + (3600000 * 24 * 5))
         })
         res.status(200).json(others)

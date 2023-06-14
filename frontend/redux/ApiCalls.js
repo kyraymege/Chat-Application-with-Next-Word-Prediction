@@ -1,4 +1,4 @@
-import axios from "axios"
+import axios, { Axios } from "axios"
 import { loginFailure, loginStart, loginSuccess, logout } from "./authSlice"
 import { removeActiveContact } from "./contactSlice"
 import { toast } from 'react-toastify'
@@ -28,11 +28,21 @@ export const uploadImage = async (file) => {
     }
 }
 
-// Image Load
-export const loadImage = async (name) => {
+// Image Upload
+export const uploadChatImage = async (fileArray) => {
     try {
-        const res = await baseRequest.get("/upload/image/" + name);
+        const res = await baseRequest.post("/uploadImage", fileArray);
         return res.data;
+    } catch (err) {
+        toast.error(err);
+    }
+}
+
+// Image Download
+export const imageDownload = async (imageName) => {
+    try {
+        const res = await baseRequest.get(`/download/${imageName}`,{responseType: 'blob'});
+        return res;
     } catch (err) {
         toast.error(err);
     }
@@ -91,18 +101,18 @@ export const fetchChats = async (userId) => {
     }
 }
 
-export const fetchChatMessages = async (chatId,page,userId) => {
+export const fetchChatMessages = async (chatId, page, userId) => {
     try {
-        const res = await baseRequest.get("/message/"+chatId+"?page="+page+"&userId="+userId);
+        const res = await baseRequest.get("/message/" + chatId + "?page=" + page + "&userId=" + userId);
         return res.data;
     } catch (err) {
         toast.error(err);
     }
 }
 
-export const sendMessageToChat = async (content, userId, chatId) => {
+export const sendMessageToChat = async (content, userId, chatId, messageType) => {
     try {
-        const res = await baseRequest.post("/message", { content, userId, chatId });
+        const res = await baseRequest.post("/message", { content, userId, chatId, messageType });
         return res.data;
     } catch (err) {
         toast.error(err);

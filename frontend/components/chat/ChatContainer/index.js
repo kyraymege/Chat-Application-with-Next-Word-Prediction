@@ -78,7 +78,6 @@ const ChatContainer = () => {
                 }
                 readMessage(newMessageRecieved._id, currentUser._id);
                 setMessages([...messages, newMessageRecieved]);
-                chatRef.current.lastElementChild.scrollIntoView();
             } else {
                 audioPlayer.current.play();
                 var chat = [...chats]; // Create a new array using the spread operator
@@ -105,10 +104,9 @@ const ChatContainer = () => {
 
     const sendMessage = async (content) => {
         try {
-            sendMessageToChat(content, currentUser._id, activeContact._id).then((res) => {
+            sendMessageToChat(content, currentUser._id, activeContact._id, "text").then((res) => {
                 socket?.current?.emit("new message", res);
                 // setMessages(messages => [...messages, res]);
-                chatRef.current.lastElementChild.scrollIntoView();
             })
         } catch (error) {
             console.log(error);

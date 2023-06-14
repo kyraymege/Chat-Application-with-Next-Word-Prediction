@@ -5,6 +5,11 @@ const messageSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "User"
     },
+    messageType: {
+        type: String,
+        enum: ["text", "image"],
+        default: "text"
+    },
     content: {
         type: String,
         trim: true

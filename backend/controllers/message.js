@@ -35,12 +35,13 @@ const allMessages = async (req, res, next) => {
 };
 
 const sendMessage = async (req, res, next) => {
-    const { content, chatId, userId } = req.body;
+    const { content, chatId, userId, messageType } = req.body;
 
     var newMessage = new Message({
         sender: userId,
         content: content,
         chat: chatId,
+        messageType: messageType
     });
 
     try {

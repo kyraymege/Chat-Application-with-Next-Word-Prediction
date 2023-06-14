@@ -1,6 +1,8 @@
 import { PF } from '@/redux/ApiCalls'
 import React from 'react'
 import { useSelector } from 'react-redux';
+import { HiPhotograph } from 'react-icons/hi'
+
 
 const ChatUserCard = ({ user, onlineUsers }) => {
     const { currentUser } = useSelector((state) => state.auth);
@@ -22,7 +24,13 @@ const ChatUserCard = ({ user, onlineUsers }) => {
 
                 <div className='flex flex-col py-1'>
                     <p className='text-base font-medium'>{(currentUser?._id === user?.members[0]._id ? user?.members[1]?.displayName : user?.members[0]?.displayName)}</p>
-                    <p className='text-sm text-gray-300' >{shortText(user?.latestMessage?.content)}</p>
+                    {user?.latestMessage?.messageType === "text" ?
+                        <p className='text-sm text-gray-300' >{shortText(user?.latestMessage?.content)}</p>
+                        :
+                        <span className='flex items-center gap-x-2'>
+                            <HiPhotograph className='fill-gray-300 w-4 h-4' />
+                            <p className='text-sm text-gray-300' >Photo</p>
+                        </span>}
                 </div>
             </div>
             {user?.chatName !== '' && user?.chatName !== undefined && user?.chatName !== 'sender' && user?.chatName !== '0' &&

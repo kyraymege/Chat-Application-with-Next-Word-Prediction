@@ -25,20 +25,45 @@ app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
-app.use("/images", express.static(path.join(__dirname, "/images")))
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "images")
-    }, filename: (req, file, cb) => {
-        cb(null, req.body.name);
+    destination: function (req, file, cb) {
+        cb(null, "images");
     },
-})
+    filename: function (req, file, cb) {
+        const fileName = Date.now() + "_" + file.originalname;
+        cb(null, fileName);
+    },
+});
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
+
 app.post("/api/upload", upload.single("file"), (req, res) => {
-    res.status(200).json("File has been uploaded!");
-})
+    const fileName = req.file.filename; // Retrieve the generated filename
+    res.status(200).json({ message: "File has been uploaded!", fileName });
+});
+
+app.post("/api/uploadImage", upload.array("files"), (req, res) => {
+    const fileNames = req.files.map((file) => file.filename); // Retrieve the generated filenames
+    res.status(200).json({ message: "Files have been uploaded!", fileNames });
+});
+
+// Handle the image download route
+app.get('/api/download/:imageName', (req, res) => {
+    const imageName = req.params.imageName;
+    console.log(imageName)
+    const imagePath = `images/${imageName}`;
+    console.log(imagePath)
+
+    res.download(imagePath, (err) => {
+        if (err) {
+            console.log(err);
+            res.status(404).json({ message: 'Image not found.' });
+        }
+    });
+});
+
 
 mongoose.connect(process.env.MONGO_URL, { useNewUrlParser: true, useUnifiedTopology: true }).then(() => {
     console.log("Mongo Atlas is connected.");
