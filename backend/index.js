@@ -88,14 +88,16 @@ io.on("connection", (socket) => {
     console.log("⚡ connected to socket ⚡");
 
     socket.on('setup', (user) => {
-
+        socket.user = user;
+        console.log(user._id)
         socket.join(user._id);
-        console.log("⚡joined room ⚡ ", user._id);
+        console.log("⚡ joined room ⚡", user._id);
         socket.emit('connected');
-        !connectedUsers.some((u) => u === user._id) &&
+        if (!connectedUsers.some((u) => u === user._id)) {
             connectedUsers.push(user._id);
+        }
         io.emit('getConnectedUsers', connectedUsers);
-    })
+    });
 
     socket.on('join chat', (room) => {
         socket.join(room);
@@ -120,12 +122,13 @@ io.on("connection", (socket) => {
         socket.in(room).emit('stop typing', room);
     })
 
-    socket.off('setup', (user) => {
-        socket.leave(user._id);
-        connectedUsers.some((u) => u === user._id) &&
-            connectedUsers.pop(user._id);
+    socket.on('disconnect', () => {
+        console.log(socket?.user?._id)
         console.log(connectedUsers)
-        console.log("⚡left room ⚡", user._id);
-    })
+        if (connectedUsers.find((u) => u === socket?.user?._id)) {
+            connectedUsers = connectedUsers.filter((u) => u !== socket?.user?._id);
+            io.emit('getConnectedUsers', connectedUsers);
+        }
+    });
 
 })

@@ -7,7 +7,7 @@ const Chat = require('../models/chat');
 const allMessages = async (req, res, next) => {
     const { chatId } = req.params;
     const { page, userId } = req.query;
-
+    console.log(userId)
     const chat = await Chat.findOne({ _id: chatId });
     if (!chat) return res.status(404).json("Chat Not Found!");
 
@@ -22,8 +22,14 @@ const allMessages = async (req, res, next) => {
 
         messages.forEach(async (message) => {
             if (!message.readBy.includes(userId)) {
-                Message.findByIdAndUpdate(message._id, { $push: { readBy: userId } }, { new: true }
-                )
+                console.log("not read")
+                Message.findByIdAndUpdate(message._id, { $push: { readBy: userId } }, { new: true })
+                    .then((result) => {
+                        console.log(result)
+                    }).catch((err) => {
+                        console.log(err)
+                    }
+                    );
             }
         })
 
