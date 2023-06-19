@@ -20,10 +20,7 @@ const ChatMessageUser = ({ activeContact, isTyping }) => {
               <p className='text-base font-medium text-yellow-600'>{(currentUser?._id === activeContact?.members[0]._id ? activeContact?.members[1]?.displayName : activeContact?.members[0]?.displayName)} is typing...</p>
             }
           </div>
-        </div>
-        <div className='cursor-pointer '>
-          <BsThreeDotsVertical className='fill-gray-400 w-5 h-5' />
-        </div>
+        </div>        
       </div>
     </div>
   )

@@ -8,7 +8,7 @@ const ChatMessageCard = ({ data, sender, isRead }) => {
     const [showPhoto, setShowPhoto] = useState(false)
     return (
 
-        <div className='py-[2px]'>
+        <div className='py-1'>
             {showPhoto && <PhotoModal setShowPhoto={setShowPhoto} data={data} />}
 
             {data?.messageType == "text" ?

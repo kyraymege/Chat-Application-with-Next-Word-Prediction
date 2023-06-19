@@ -21,7 +21,6 @@ const ChatRightBar = ({ socket, isSocketConnected, chatRef, sendMessage, message
   const [file, setFile] = useState(null);
 
   useEffect(() => {
-    console.log(file)
     setGuessedWord(null)
     if (content === '') setGuessedWord(null)
     if (content !== '') {
@@ -104,7 +103,7 @@ const ChatRightBar = ({ socket, isSocketConnected, chatRef, sendMessage, message
                     </span>
                     {!content &&
                       <span onClick={handleClick} className='bg-secondary hover:bg-fourth rounded-full p-3 cursor-pointer'>
-                        <input multiple onDrag accept="image/*" id="dropzone-file" type="file" className="hidden" ref={hiddenFileInput} onChange={(e) => setFile(e.target.files)} />
+                        <input multiple accept="image/*" id="dropzone-file" type="file" className="hidden" ref={hiddenFileInput} onChange={(e) => setFile(e.target.files)} />
                         <BsCardImage className='w-5 h-5 fill-gray-400' />
                       </span>}
                   </div>

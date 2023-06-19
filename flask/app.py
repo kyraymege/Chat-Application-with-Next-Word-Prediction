@@ -54,7 +54,7 @@ def guessWord():
 
     # Create the deep learning model.
     model = Sequential([
-        Embedding(vocab_size, 64, input_length=max_length),
+        Embedding(vocab_size, 128, input_length=max_length),
         Conv1D(filters=128, kernel_size=3, strides=1, padding="same"),
         Flatten(),
         Dense(vocab_size, activation="softmax")

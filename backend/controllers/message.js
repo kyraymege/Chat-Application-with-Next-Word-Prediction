@@ -72,10 +72,9 @@ const sendMessage = async (req, res, next) => {
 
 const fetchUsersMessages = async (req, res, next) => {
     const { userId } = req.params;
-    console.log(userId)
     try {
         const allMessages = [];
-        const messages = await Message.find({ sender: userId }).sort({ createdAt: -1 }).limit(100);
+        const messages = await Message.find({ sender: userId , messageType: "text" }).sort({ createdAt: -1 }).limit(200);
         messages.forEach(element => {
 
             allMessages.push(element.content);

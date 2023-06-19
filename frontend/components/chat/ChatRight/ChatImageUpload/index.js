@@ -13,24 +13,6 @@ const ChatImageUpload = ({ file, setFile, socket }) => {
     const fileArray = [...file];
     const [isActive, setIsActive] = useState(file[0])
 
-    // const handleSubmit = async (e) => {
-    //     if (file) {
-    //         console.log(file)
-    //         e.preventDefault();
-    //         const formData = new FormData();
-    //         for (let i = 0; i < file.length; i++) {
-    //             const filename = currentUser?._id + "_" + activeContact?._id + "_" + file[i].name;
-    //             formData.append("name", filename);
-    //             formData.append("file", file[i]);
-    //             sendMessageToChat(filename, currentUser._id, activeContact._id, "image").then((res) => {
-    //                 socket?.current?.emit("new message", res);
-    //             })
-    //         }
-    //         uploadChatImage(formData);
-
-    //     }
-    // };
-
     const handleSubmit = async (e) => {
         if (file) {
             e.preventDefault();
@@ -41,6 +23,7 @@ const ChatImageUpload = ({ file, setFile, socket }) => {
             try {
                 const response = await uploadChatImage(formData);
                 (response.fileNames).forEach((filename) => {
+                    console.log(filename)
                     sendMessageToChat(filename, currentUser._id, activeContact._id, "image").then((res) => {
                         socket?.current?.emit("new message", res);
                     });
@@ -59,6 +42,12 @@ const ChatImageUpload = ({ file, setFile, socket }) => {
         }
     };
 
+    const handleDeletePhoto = (fileItem) => {
+        const newFileArray = fileArray.filter((item) => item !== fileItem)
+        setFile(newFileArray);
+        setIsActive(file[0])
+    }
+
     return (
         <div className='p-4'>
             <span onClick={() => setFile(null)} className='p-6 cursor-pointer'>
@@ -70,9 +59,9 @@ const ChatImageUpload = ({ file, setFile, socket }) => {
             <div className='flex items-center justify-center gap-x-6'>
                 {Array.isArray(fileArray) &&
                     fileArray.map((fileItem, index) => (
-                        <div onClick={() => { setIsActive(fileItem) }} key={index} className={isActive === fileItem ? 'border rounded-xl border-yellow-400 cursor-pointer flex' : ' border rounded-xl border-yellow-600 cursor-pointer flex'}>
-                            <img src={window.URL.createObjectURL(fileItem)} alt="avatar" className="w-32 h-32 transition-all p-3" />
-                            <ImCross className='text-white cursor-pointer ' />
+                        <div  key={index} className={isActive === fileItem ? 'border rounded-xl border-yellow-400 cursor-pointer flex' : ' border rounded-xl border-yellow-600 cursor-pointer flex'}>
+                            <img onClick={() => { setIsActive(fileItem) }} src={window.URL.createObjectURL(fileItem)} alt="avatar" className="w-32 h-32 transition-all p-3" />
+                            <ImCross onClick={() => handleDeletePhoto(fileItem)} className='text-white cursor-pointer ' />
                         </div>
                     ))}
                 <button onClick={handleSubmit} className='cursor-pointer bg-third hover:bg-third rounded-full p-3'>

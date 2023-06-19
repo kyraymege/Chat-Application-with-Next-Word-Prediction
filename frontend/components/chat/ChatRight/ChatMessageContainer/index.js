@@ -12,7 +12,6 @@ const ChatMessageContainer = ({ chatMessages, chatRef, setMessages }) => {
   const user = currentUser?._id === activeContact?.members[0]._id ? activeContact?.members[1] : activeContact?.members[0];
   const scrollRef = useRef(null);
   const [page, setPage] = useState(2)
-  console.log(chatMessages)
 
   const loadMore = () => {
     setPage((prev) => prev + 1)
